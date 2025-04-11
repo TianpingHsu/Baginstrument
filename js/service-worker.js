@@ -4,49 +4,13 @@
 
 console.log("This prints to the console of the service worker (background script)")
 
-// function createContextMenu() {
-//     chrome.contextMenus.create({
-//         id: 'baidu-search',
-//         title: '使用度娘搜索：%s',
-//         contexts: ['selection']
-//     }, () => {
-//         if (chrome.runtime.lastError) {
-//             console.error(chrome.runtime.lastError);
-//         }
-//     });
-// }
-
-// // Create context menu when the extension is installed or updated
-// chrome.runtime.onInstalled.addListener(() => {
-//     createContextMenu();
-// });
-
-// chrome.contextMenus.onClicked.addListener(function(info, tab) {
-//     switch(info.menuItemId){
-//         case 'baidu-search':
-//             chrome.tabs.create({url: 'https://www.baidu.com/s?ie=utf-8&wd=' + encodeURI(info.selectionText)});
-//             break;
-//     }
-// });
-
-// chrome.contextMenus.create({
-//     id: 'my_menu_item',
-//     title: 'save to pocket',
-//     contexts: ['selection']
-// });
-// chrome.contextMenus.onClicked.addListener((info, tab) => {
-//     if (info.menuItemId === 'my_menu_item') {
-//         chrome.tabs.create({url: 'https://www.baidu.com/s?ie=utf-8&wd=' + encodeURI(info.selectionText)});
-//     }
-// });
-
 chrome.contextMenus.create({
-    id: 'foo',
+    id: 'pocket',
     title: 'save to pocket',
     contexts: ['selection']
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === 'foo') {
+    if (info.menuItemId === 'pocket') {
         // Save the selected text to local storage
         chrome.storage.local.get(['savedTexts'], function(result) {
             let savedTexts = result.savedTexts || [];
@@ -72,13 +36,6 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
 			{content: '日本' + text, description: '你要找“日本美女”吗？'},
 			{content: '泰国' + text, description: '你要找“泰国美女或人妖”吗？'},
 			{content: '韩国' + text, description: '你要找“韩国美女”吗？'}
-		]);
-	}
-	else if(text == '微博') {
-		suggest([
-			{content: '新浪' + text, description: '新浪' + text},
-			{content: '腾讯' + text, description: '腾讯' + text},
-			{content: '搜狐' + text, description: '搜索' + text},
 		]);
 	}
 	else {
@@ -116,6 +73,39 @@ function openUrlCurrentTab(url)
 		chrome.tabs.update(tabId, {url: url});
 	})
 }
+
+chrome.commands.onCommand.addListener((command) => {
+    console.log(`Command "${command}" triggered`);
+    if (command === "save-it-into-pocket") {
+        getCurrentTabId(tabId => {
+            chrome.tabs.sendMessage(tabId, {action: "getSelectedText"}, response => {
+                const selectedText = response.selectedText;
+                const url = response.url;
+                const time = new Date().toISOString();
+                
+                chrome.storage.sync.get({pocket: []}, data => {
+                    const pocket = data.pocket;
+                    pocket.push({text: selectedText, url: url, time: time});
+                    chrome.storage.sync.set({pocket: pocket}, () => {
+                        console.log("Saved to pocket:", {text: selectedText, url: url, time: time});
+                    });
+                });
+            });
+        });
+    }
+});
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request.action === "view") {
+            sendResponse({farewell: "goodbye"});
+        } else if (request.action === "export") {
+            sendResponse({farewell: "goodbye"});
+        } else {
+            // 
+        }
+    }
+);
 
 // Importing and using functionality from external files is also possible.
 importScripts('service-worker-utils.js')

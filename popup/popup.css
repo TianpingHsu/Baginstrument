@@ -6,6 +6,10 @@ body {
     height: 4rem;
 }
 
-.special-text {
+#view {
+    color: red;
+}
+
+#export {
     color: red;
 }
