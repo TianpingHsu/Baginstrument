@@ -1,5 +1,4 @@
 {
-    // https://developer.chrome.com/docs/extensions/reference/manifest?hl=zh-cn
     "manifest_version": 3,
     "name": "Baginstrument",
     "description": "pick it",
@@ -9,14 +8,14 @@
         "48": "logo/logo-48.png",
         "128": "logo/logo-128.png"
     },
-    "options_page": "settings/settings.html",
+    "options_page": "html/options.html",
     "action": {
         "default_title": "Baginstrument",
-        "default_popup": "popup/popup.html"
+        "default_popup": "html/popup.html"
     },
     "permissions": [
         "contextMenus",
-        "tabs", 
+        "tabs",
         "notifications",
         "webRequest",
         "storage",
