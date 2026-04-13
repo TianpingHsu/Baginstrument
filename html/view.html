@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Saved Items - Baginstrument</title>
+    <link rel="stylesheet" href="/css/view.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Saved Items</h1>
+            <div class="header-actions">
+                <button id="export-all">Export All</button>
+                <button id="delete-all" class="danger">Delete All</button>
+            </div>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="search" placeholder="Search saved text or URL...">
+            <select id="sort">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+            </select>
+        </div>
+
+        <div class="export-options" id="export-options" style="display: none;">
+            <p>Export:</p>
+            <button id="export-filtered">Current Filtered Results</button>
+            <button id="export-cancel">Cancel</button>
+        </div>
+
+        <div id="items-list" class="items-list">
+            <!-- Items will be rendered here -->
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <p>No saved items found.</p>
+        </div>
+    </div>
+
+    <script src="/js/view.js"></script>
+</body>
+</html>
