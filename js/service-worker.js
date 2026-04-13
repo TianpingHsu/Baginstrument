@@ -98,11 +98,33 @@ chrome.commands.onCommand.addListener((command) => {
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.action === "view") {
-            sendResponse({farewell: "goodbye"});
+            // Return all saved texts
+            chrome.storage.local.get(['savedTexts'], function(result) {
+                sendResponse({ data: result.savedTexts || [] });
+            });
+            return true; // Keep channel open for async response
         } else if (request.action === "export") {
-            sendResponse({farewell: "goodbye"});
-        } else {
-            // 
+            // Return all saved texts for export
+            chrome.storage.local.get(['savedTexts'], function(result) {
+                sendResponse({ data: result.savedTexts || [] });
+            });
+            return true;
+        } else if (request.action === "deleteItem") {
+            // Delete a specific item
+            chrome.storage.local.get(['savedTexts'], function(result) {
+                let savedTexts = result.savedTexts || [];
+                savedTexts.splice(request.index, 1);
+                chrome.storage.local.set({ savedTexts }, function() {
+                    sendResponse({ success: true });
+                });
+            });
+            return true;
+        } else if (request.action === "deleteAll") {
+            // Delete all items
+            chrome.storage.local.set({ savedTexts: [] }, function() {
+                sendResponse({ success: true });
+            });
+            return true;
         }
     }
 );
