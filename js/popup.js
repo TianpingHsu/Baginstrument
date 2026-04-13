@@ -3,15 +3,13 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("button clicked");
     const button = document.getElementById('view');
     button.addEventListener('click', () => {
-        chrome.runtime.sendMessage({action: "view"}, function(response) {
-            console.log(response.farewell);
-        });
+        // Open view.html in a new tab
+        chrome.tabs.create({ url: chrome.runtime.getURL('html/view.html') });
     });
 
     const buttonB = document.getElementById('export');
     buttonB.addEventListener('click', function() {
-        chrome.runtime.sendMessage({action: "export"}, function(response) {
-            console.log(response.farewell);
-        });
+        // Open view.html in a new tab for export functionality
+        chrome.tabs.create({ url: chrome.runtime.getURL('html/view.html') });
     });
 });
