@@ -11,18 +11,7 @@ chrome.contextMenus.create({
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'pocket') {
-        // Save the selected text to local storage
-        chrome.storage.local.get(['savedTexts'], function(result) {
-            let savedTexts = result.savedTexts || [];
-            savedTexts.push({
-                text: info.selectionText,
-                date: new Date().toISOString(),
-                url: tab.url
-            });
-            chrome.storage.local.set({ savedTexts: savedTexts }, function() {
-                console.log('Text saved:', info.selectionText);
-            });
-        });
+        saveToStorage(info.selectionText, tab.url);
     }
 });
 
@@ -78,22 +67,50 @@ chrome.commands.onCommand.addListener((command) => {
     console.log(`Command "${command}" triggered`);
     if (command === "save-it-into-pocket") {
         getCurrentTabId(tabId => {
-            chrome.tabs.sendMessage(tabId, {action: "getSelectedText"}, response => {
-                const selectedText = response.selectedText;
-                const url = response.url;
-                const time = new Date().toISOString();
-                
-                chrome.storage.sync.get({pocket: []}, data => {
-                    const pocket = data.pocket;
-                    pocket.push({text: selectedText, url: url, time: time});
-                    chrome.storage.sync.set({pocket: pocket}, () => {
-                        console.log("Saved to pocket:", {text: selectedText, url: url, time: time});
-                    });
-                });
-            });
+            // Inject script to get selected text
+            chrome.scripting.executeScript(
+                {
+                    target: { tabId: tabId },
+                    func: () => {
+                        const selection = window.getSelection();
+                        return selection ? selection.toString() : '';
+                    }
+                },
+                (results) => {
+                    if (results && results[0] && results[0].result) {
+                        const selectedText = results[0].result;
+                        if (selectedText) {
+                            chrome.tabs.get(tabId, (tab) => {
+                                saveToStorage(selectedText, tab.url);
+                            });
+                        }
+                    }
+                }
+            );
         });
     }
 });
+
+function saveToStorage(text, url) {
+    chrome.storage.local.get(['savedTexts'], function(result) {
+        let savedTexts = result.savedTexts || [];
+        savedTexts.push({
+            text: text,
+            date: new Date().toISOString(),
+            url: url
+        });
+        chrome.storage.local.set({ savedTexts: savedTexts }, function() {
+            console.log('Text saved:', text);
+            // Show notification
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'logo/logo-48.png',
+                title: 'Saved!',
+                message: text.length > 50 ? text.substring(0, 50) + '...' : text
+            });
+        });
+    });
+}
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {

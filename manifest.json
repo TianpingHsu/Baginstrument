@@ -19,7 +19,8 @@
         "notifications",
         "webRequest",
         "storage",
-        "commands"
+        "commands",
+        "scripting"
     ],
     "host_permissions": [
         "*://*/*"
@@ -60,6 +61,12 @@
             "js": [
                 "js/show-image-content-size.js"
             ]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["html/view.html", "css/view.css", "js/view.js"],
+            "matches": ["<all_urls>"]
         }
     ],
     "commands": {
