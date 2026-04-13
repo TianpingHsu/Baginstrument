@@ -65,10 +65,15 @@
     "commands": {
         "save-it-into-pocket": {
             "suggested_key": "Shift+Alt+S",
-            "description": "Inject a script on the page"
+            "description": "save it"
         }
     },
     "omnibox": {
         "keyword": "pick"
+    },
+    "default_locale": "zh_CN",
+    "devtools_page": "html/devtools.html",
+    "chrome_url_overrides": {
+        "newtab": "html/newtab.html"
     }
 }
